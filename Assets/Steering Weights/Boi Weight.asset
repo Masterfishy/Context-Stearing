@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffab68aabdef77642932f62e90e44b8c, type: 3}
   m_Name: Boi Weight
   m_EditorClassIdentifier: 
-  weight: 0.5
+  weight: 1

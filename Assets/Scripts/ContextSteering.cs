@@ -94,7 +94,7 @@ public class ContextSteering : MonoBehaviour
         {
             Physics2D.OverlapCircleNonAlloc(transform.position, m_interestRange, m_interestResults, m_interestLayer);
 
-            // For give me for the O(n^2)
+            // For give me for the O(n^2) 2022 Note: not really n^2 its dim(m_interestsResults) * m_numRays
             foreach (Collider2D _col in m_interestResults)
             {
                 if (_col)
@@ -128,7 +128,7 @@ public class ContextSteering : MonoBehaviour
                     SteeringObject _so = _result.collider.gameObject.GetComponent<SteeringObject>();
                     if (_so != null)
                     {
-                        _weight = _so.weight * (1 - (_distanceToDanger / m_dangerRange));
+                        _weight = 1 - (_distanceToDanger / m_dangerRange);
                     }
 
                     m_dangers[_i] = _weight;
@@ -151,14 +151,14 @@ public class ContextSteering : MonoBehaviour
             {
                 if (m_dangers[_i] > 0f)
                 {
-                    m_interests[_i] = m_interests[_i] - m_dangers[_i];
+                    m_interests[_i] = 0f;
                 }
             }
 
             m_chosenDirection = Vector2.zero;
             for (int _i = 0; _i < m_numRays; _i++)
             {
-                m_chosenDirection += m_rayDirections[_i] * m_interests[_i];
+                m_chosenDirection += m_rayDirections[_i] * (m_interests[_i] - m_dangers[_i]);
             }
 
             m_chosenDirection.Normalize();
