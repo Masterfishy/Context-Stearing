@@ -141,7 +141,7 @@ public class Pathfinding : MonoBehaviour
                                                path[i].mapPosition.y - path[i + 1].mapPosition.y);
             if (directionNew != directionOld)
             {
-                waypoints.Add(path[i].mapPosition);
+                waypoints.Add(new Vector3(path[i].mapPosition.x + 0.5f, path[i].mapPosition.y + 0.5f));
             }
 
             directionOld = directionNew;
