@@ -18,6 +18,14 @@ public class MapManager : Singleton<MapManager>
 
     private Dictionary<Vector3Int, Node> m_worldMap;
 
+    public int MapSize
+    {
+        get
+        {
+            return (int)(worldSize.x * worldSize.y);
+        }
+    }
+
     public Node GetNodeFromPoint(Vector3Int point)
     {
         if (m_worldMap.ContainsKey(point))
@@ -47,9 +55,16 @@ public class MapManager : Singleton<MapManager>
                 _searchPoint.x = x;
                 _searchPoint.y = y;
 
-                if (m_worldMap.ContainsKey(_searchPoint))
+                if (m_worldMap.TryGetValue(_searchPoint, out Node _node))
                 {
-                    neighbors.Add(m_worldMap[_searchPoint]);
+                    switch (_node.tile)
+                    {
+                        case Tile.Ground:
+                            neighbors.Add(_node);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
@@ -81,6 +96,7 @@ public class MapManager : Singleton<MapManager>
             new Vector3Int(0, 4, 0),
             new Vector3Int(0, 3, 0),
             new Vector3Int(0, 2, 0),
+            new Vector3Int(0, 1, 0),
             new Vector3Int(1, 1, 0),
             new Vector3Int(1, -3, 0),
             new Vector3Int(4, 0, 0),

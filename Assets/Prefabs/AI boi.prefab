@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2686559069605491865}
   - component: {fileID: 8643961028173684986}
   - component: {fileID: 274287128233139843}
-  - component: {fileID: 495155839428274248}
   - component: {fileID: 2686559069605491864}
   - component: {fileID: 2686559069605491867}
   m_Layer: 9
@@ -54,7 +53,7 @@ MonoBehaviour:
   m_dangerLayer:
     serializedVersion: 2
     m_Bits: 512
-  m_speed: 1.5
+  m_speed: 0
   m_interestRange: 10
   m_dangerRange: 1.5
   m_numRays: 16
@@ -83,21 +82,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4e456560380af34ebc348d4ea3fe1c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &495155839428274248
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2686559069605491863}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5549e49bbb78b854dbfacd618c17dbf9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nodePrefab: {fileID: 0}
-  diagonalMoveCost: 14
-  adjacentMoveCost: 10
+  target: {fileID: 0}
 --- !u!50 &2686559069605491864
 Rigidbody2D:
   serializedVersion: 4

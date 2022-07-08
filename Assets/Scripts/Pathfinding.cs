@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,19 +11,14 @@ public class Pathfinding : MonoBehaviour
     public int diagonalMoveCost = 14;
     public int adjacentMoveCost = 10;
 
-    private List<Vector3Int> path;
-
-    private void Awake()
+    /// <summary>
+    /// Starts a coroutine to find a path from start to target.
+    /// </summary>
+    /// <param name="start">The starting position</param>
+    /// <param name="target">The target position</param>
+    public void StartFindPath(Vector3 start, Vector3 target)
     {
-        path = new List<Vector3Int>();
-    }
-
-    private void Update()
-    {
-        for (int i = 0; i < path.Count - 1; i++)
-        {
-            Debug.DrawLine(path[i], path[i + 1], Color.blue);
-        }
+        StartCoroutine(FindPath(start, target));
     }
 
     /// <summary>
@@ -31,48 +27,37 @@ public class Pathfinding : MonoBehaviour
     /// </summary>
     /// <param name="_startPos">The starting position</param>
     /// <param name="_targetPos">The target position</param>
-    public void FindPath(Vector3 _startPos, Vector3 _targetPos)
+    private IEnumerator FindPath(Vector3 _startPos, Vector3 _targetPos)
     {
+        Vector3[] waypoints = new Vector3[0];
+        bool pathSuccess = false;
+
         Node startNode = MapManager.Instance.GetNodeFromPoint(MapManager.Instance.WorldToMapPoint(_startPos));
         Node targetNode = MapManager.Instance.GetNodeFromPoint(MapManager.Instance.WorldToMapPoint(_targetPos));
 
-        //Debug.Log($"Start Pos: {startNode.mapPosition} | Target Pos: {targetNode.mapPosition}");
+        //Debug.Log($"{gameObject.name} | Start Pos: {startNode.mapPosition} | Target Pos: {targetNode.mapPosition}");
 
-        List<Node> openSet = new List<Node>();
+        Heap<Node> openSet = new Heap<Node>(MapManager.Instance.MapSize);
         HashSet<Node> closedSet = new HashSet<Node>();
 
-        openSet.Add(startNode);
+        openSet.Push(startNode);
 
         while (openSet.Count > 0)
         {
-            Node _currentNode = openSet[0];
-
             // Find the cheapest node to travel to first
-            //Debug.Log("Finding cheapest node...");
-            for (int _i = 1; _i < openSet.Count; _i++)
-            {
-                Node _node = openSet[_i];
-
-                if (_node.Cost < _currentNode.Cost ||
-                    _node.Cost == _currentNode.Cost && _node.hCost < _currentNode.hCost)
-                {
-                    _currentNode = openSet[_i];
-                }
-            }
-
-            openSet.Remove(_currentNode);
+            Node _currentNode = openSet.Pop();
             closedSet.Add(_currentNode);
 
             // If we reach the target
-            //Debug.Log($"Are {_currentNode.mapPosition} and {targetNode.mapPosition} equal? {_currentNode.Equals(targetNode)}");
+            //Debug.Log($"{gameObject.name} | Are {_currentNode.mapPosition} and {targetNode.mapPosition} equal? {_currentNode.Equals(targetNode)}");
             if (_currentNode.Equals(targetNode))
             {
-                SetPath(_currentNode);
-                return; // TODO we don't want to stop :) good luck with that ass hat
+                pathSuccess = true;
+                break;
             }
 
             // Search for the next best neighbor
-            //Debug.Log("Finding neighbors...");
+            //Debug.Log($"{gameObject.name} | Finding neighbors...");
             foreach (Node _neighbor in MapManager.Instance.GetNeighbors(_currentNode))
             {
                 if (_neighbor.tile == Tile.Wall || closedSet.Contains(_neighbor))
@@ -89,34 +74,87 @@ public class Pathfinding : MonoBehaviour
 
                     if (!openSet.Contains(_neighbor))
                     {
-                        openSet.Add(_neighbor);
+                        openSet.Push(_neighbor);
                     }
                 }
             }
-        }
 
-        //Debug.Log("Fuck, no path...");
+        }
+        
+        yield return null;
+
+        if (pathSuccess)
+        {
+            waypoints = RetracePath(startNode, targetNode);
+        }
+        PathRequestManager.Instance.FinishedProcessingPath(waypoints, pathSuccess);
     }
 
-    private void SetPath(Node node)
+    /// <summary>
+    /// Retraces the path from the start node to the end node by following the parents from the end node.
+    /// </summary>
+    /// <param name="startNode">The starting node</param>
+    /// <param name="endNode">The ending node</param>
+    /// <returns>A list of Vector3s from start to end.</returns>
+    private Vector3[] RetracePath(Node startNode, Node endNode)
     {
-        Node _currentNode = node;
+        List<Node> path = new List<Node>();
+        Node currentNode = endNode;
 
-        path.Clear();
-
-        while (_currentNode != null)
+        while (currentNode != startNode)
         {
-            path.Add(_currentNode.mapPosition);
-
-            _currentNode = _currentNode.parent;
+            path.Add(currentNode);
+            currentNode = currentNode.parent;
         }
+
+        Vector3[] waypoints = SimplifyPath(path);
+        Array.Reverse(waypoints);
+
+        return waypoints;
+    }
+
+    private Vector3[] GeneratePath(List<Node> path)
+    {
+        List<Vector3> waypoints = new List<Vector3>();
+        
+        for(int i = 1; i < path.Count; i++)
+        {
+            waypoints.Add(path[i].mapPosition);
+        }
+
+        return waypoints.ToArray();
+    }
+
+    /// <summary>
+    /// Simplifies a path of nodes by removing nodes which do not change direction.
+    /// </summary>
+    /// <param name="path">The path to simplify</param>
+    /// <returns>A simplified path.</returns>
+    private Vector3[] SimplifyPath(List<Node> path)
+    {
+        List<Vector3> waypoints = new List<Vector3>();
+        Vector2 directionOld = Vector2.zero;
+
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            Vector2 directionNew = new Vector2(path[i].mapPosition.x - path[i + 1].mapPosition.x, 
+                                               path[i].mapPosition.y - path[i + 1].mapPosition.y);
+            if (directionNew != directionOld)
+            {
+                waypoints.Add(path[i].mapPosition);
+            }
+
+            directionOld = directionNew;
+        }
+
+        return waypoints.ToArray();
     }
 
     /// <summary>
     /// Get euclidean distance cost between two nodes.
     /// </summary>
-    /// <param name="nodeA">The starting node.</param>
-    /// <param name="nodeB">The ending node.</param>
+    /// <param name="nodeA">The starting node</param>
+    /// <param name="nodeB">The ending node</param>
     /// <returns>The distance cost for traveling from one node to the next.</returns>
     private int NodeDistanceCost(Node nodeA, Node nodeB)
     {
