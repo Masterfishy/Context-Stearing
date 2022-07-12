@@ -426,6 +426,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: AI boi (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 2686559069605491863, guid: 25825db4015da8540b971be36fc6b4ad,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 25825db4015da8540b971be36fc6b4ad, type: 3}
 --- !u!1 &364592415
@@ -1020,6 +1025,16 @@ PrefabInstance:
       propertyPath: target
       value: 
       objectReference: {fileID: 404285796}
+    - target: {fileID: 274287128233139843, guid: 25825db4015da8540b971be36fc6b4ad,
+        type: 3}
+      propertyPath: strafeDistance
+      value: 2.46
+      objectReference: {fileID: 0}
+    - target: {fileID: 274287128233139843, guid: 25825db4015da8540b971be36fc6b4ad,
+        type: 3}
+      propertyPath: pathTargetRange
+      value: 0.75
+      objectReference: {fileID: 0}
     - target: {fileID: 2686559069605491862, guid: 25825db4015da8540b971be36fc6b4ad,
         type: 3}
       propertyPath: m_RootOrder
@@ -1079,6 +1094,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: AI boi
+      objectReference: {fileID: 0}
+    - target: {fileID: 8870901172846169724, guid: 25825db4015da8540b971be36fc6b4ad,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 25825db4015da8540b971be36fc6b4ad, type: 3}
@@ -1148,6 +1168,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Interest
+      objectReference: {fileID: 0}
+    - target: {fileID: 5062719481253924419, guid: 22590999af670094882a997c3ebd6a46,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5062719481253924419, guid: 22590999af670094882a997c3ebd6a46,
         type: 3}

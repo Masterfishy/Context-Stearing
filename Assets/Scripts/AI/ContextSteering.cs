@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum InterestMode
+{
+    Free,
+    Target
+}
+
 public class ContextSteering : MonoBehaviour
 {
     public LayerMask m_interestLayer;
@@ -30,6 +36,8 @@ public class ContextSteering : MonoBehaviour
     private Vector2 m_chosenDirection;
     private Vector2[] m_rayDirections;
 
+    private InterestMode m_interestMode;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -52,7 +60,7 @@ public class ContextSteering : MonoBehaviour
             m_rayDirections[_i] = new Vector2(Mathf.Cos(_angle), Mathf.Sin(_angle)).normalized;
         }
 
-        StartCoroutine(SetInterest());
+        SetInterestMode(InterestMode.Free, null);
         StartCoroutine(SetDanger());
         StartCoroutine(SetDirection());
 
@@ -88,7 +96,43 @@ public class ContextSteering : MonoBehaviour
         rb.velocity = _vel;
     }
 
-    private IEnumerator SetInterest()
+    /// <summary>
+    /// Set the interest search mode for the context steering.
+    /// </summary>
+    /// <param name="newMode">The new interest mode</param>
+    /// <param name="target">The target for target interest mode</param>
+    public void SetInterestMode(InterestMode newMode, Transform target)
+    {
+        if (newMode == InterestMode.Free)
+        {
+            StopCoroutine("SetTargetInterest");
+            StartCoroutine("SetFreeInterest");
+        }
+
+        if (newMode == InterestMode.Target && target != null)
+        {
+            StopCoroutine("SetFreeInterest");
+            StartCoroutine("SetTargetInterest", target);
+        }
+    }
+
+    private IEnumerator SetTargetInterest(Transform target)
+    {
+        while (isActiveAndEnabled)
+        {
+            for (int _i = 0; _i < m_numRays; _i++)
+            {
+                Vector2 _direction = target.position - transform.position;
+
+                float _d = Vector2.Dot(m_rayDirections[_i], _direction) / _direction.magnitude;
+                m_interests[_i] = Mathf.Max(0.1f, _d);
+            }
+
+            yield return new WaitForFixedUpdate();
+        }
+    }
+
+    private IEnumerator SetFreeInterest()
     {
         while (isActiveAndEnabled)
         {
