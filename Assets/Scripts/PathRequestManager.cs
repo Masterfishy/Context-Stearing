@@ -16,6 +16,11 @@ public class PathRequestManager : Singleton<PathRequestManager>
         pathfinding = GetComponent<Pathfinding>();
     }
 
+    private void Update()
+    {
+        Debug.Log("Request size: " + pathRequestQueue.Count);
+    }
+
     /// <summary>
     /// Requests a path from the PathRequestManager to be processed when resources are available.
     /// </summary>

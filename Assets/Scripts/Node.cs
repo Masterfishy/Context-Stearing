@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Node : IHeapItem<Node>
 {
-    public Tile tile;
+    public TileType tile;
     public Vector3Int mapPosition;
 
     public int gCost; // Traveling to this node cost
@@ -14,7 +14,7 @@ public class Node : IHeapItem<Node>
 
     private int heapIndex;
 
-    public Node(Tile newTile, Vector3Int newPosition)
+    public Node(TileType newTile, Vector3Int newPosition)
     {
         tile = newTile;
         mapPosition = newPosition;

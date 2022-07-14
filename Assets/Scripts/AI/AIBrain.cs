@@ -14,32 +14,29 @@ public class AIBrain : MonoBehaviour
     private int targetIndex;
     private bool findNewPath = true;
 
-    private State currentState;
+    private Vector3 pathTargetPosition;
+
     private ContextSteering steering;
 
     private void Awake()
     {
         steering = GetComponent<ContextSteering>();
+
+        pathTargetPosition = transform.position;
     }
 
     private void Update()
     {
-        if (currentState == State.Search && findNewPath)
+        if (findNewPath)
         {
+            steering.SetMoveMode(MoveMode.Target);
             PathRequestManager.Instance.RequestPath(transform.position, target.position, OnPathFound);
             findNewPath = false;
         }
 
-        if (currentState == State.Strafe)
+        if (path != null && path.Length > 0)
         {
-            steering.SetInterestMode(InterestMode.Free, null);
-        }
-
-        if (Vector3.Distance(target.position, transform.position) <= strafeDistance)
-        {
-            StopCoroutine("FollowPath");
-            findNewPath = false;
-            ChangeState(State.Strafe);
+            findNewPath = Vector3.Distance(transform.position, path[path.Length - 1]) > 1f;
         }
     }
 
@@ -50,46 +47,33 @@ public class AIBrain : MonoBehaviour
             path = newPath;
             StopCoroutine("FollowPath");
             StartCoroutine("FollowPath");
-
-            steering.SetInterestMode(InterestMode.Target, pathTarget);
         }
-    }
-
-    private void ChangeState(State newState)
-    {
-        currentState = newState;
-    }
-
-    private IEnumerator Strafe()
-    {
-        while (currentState == State.Strafe)
-        {
-            if (Vector3.Distance(transform.position, pathTarget.position) <= pathTargetRange)
-            {
-
-            }
-        }
-
-        yield break;
     }
 
     private IEnumerator FollowPath()
     {
+        if (path.Length <= 0)
+        {
+            findNewPath = true;
+            yield break;
+        }
+
         targetIndex = 0;
+        pathTargetPosition = path[targetIndex];
+        steering.MoveTo(pathTargetPosition);
 
         while (targetIndex < path.Length)
         {
-            pathTarget.position = path[targetIndex];
-
-            if (Vector3.Distance(transform.position, pathTarget.position) <= pathTargetRange)
+            if (Vector3.Distance(transform.position, pathTargetPosition) < pathTargetRange)
             {
                 targetIndex++;
+
+                pathTargetPosition = path[targetIndex];
+                steering.MoveTo(pathTargetPosition);
             }
 
             yield return new WaitForEndOfFrame();
         }
-
-        findNewPath = true;
     }
 
     private void OnDrawGizmos()
@@ -111,17 +95,11 @@ public class AIBrain : MonoBehaviour
                 }
             }
 
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(pathTarget.position, pathTargetRange);
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(pathTargetPosition, pathTargetRange);
         }
 
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(target.position, strafeDistance);
-    }
-
-    private enum State
-    {
-        Search,
-        Strafe
     }
 }

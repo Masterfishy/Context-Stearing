@@ -60,7 +60,7 @@ public class Pathfinding : MonoBehaviour
             //Debug.Log($"{gameObject.name} | Finding neighbors...");
             foreach (Node _neighbor in MapManager.Instance.GetNeighbors(_currentNode))
             {
-                if (_neighbor.tile == Tile.Wall || closedSet.Contains(_neighbor))
+                if (_neighbor.tile == TileType.Wall || closedSet.Contains(_neighbor))
                 {
                     continue;
                 }
@@ -117,7 +117,7 @@ public class Pathfinding : MonoBehaviour
     {
         List<Vector3> waypoints = new List<Vector3>();
         
-        for(int i = 1; i < path.Count; i++)
+        for(int i = 0; i < path.Count; i++)
         {
             waypoints.Add(path[i].mapPosition);
         }

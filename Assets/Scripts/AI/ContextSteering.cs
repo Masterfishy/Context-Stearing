@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum InterestMode
+public enum MoveMode
 {
     Free,
     Target
@@ -36,7 +36,8 @@ public class ContextSteering : MonoBehaviour
     private Vector2 m_chosenDirection;
     private Vector2[] m_rayDirections;
 
-    private InterestMode m_interestMode;
+    private MoveMode m_moveMode;
+    private Vector3 m_interestTarget;
 
     private void Awake()
     {
@@ -50,6 +51,8 @@ public class ContextSteering : MonoBehaviour
         
         m_chosenDirection = Vector2.zero;
         m_rayDirections = new Vector2[m_numRays];
+
+        m_interestTarget = Vector3.zero;
     }
 
     private void Start()
@@ -60,7 +63,7 @@ public class ContextSteering : MonoBehaviour
             m_rayDirections[_i] = new Vector2(Mathf.Cos(_angle), Mathf.Sin(_angle)).normalized;
         }
 
-        SetInterestMode(InterestMode.Free, null);
+        SetMoveMode(MoveMode.Free);
         StartCoroutine(SetDanger());
         StartCoroutine(SetDirection());
 
@@ -99,30 +102,38 @@ public class ContextSteering : MonoBehaviour
     /// <summary>
     /// Set the interest search mode for the context steering.
     /// </summary>
-    /// <param name="newMode">The new interest mode</param>
-    /// <param name="target">The target for target interest mode</param>
-    public void SetInterestMode(InterestMode newMode, Transform target)
+    /// <param name="newMode">The new move mode</param>
+    public void SetMoveMode(MoveMode newMode)
     {
-        if (newMode == InterestMode.Free)
+        if (newMode == MoveMode.Free)
         {
-            StopCoroutine("SetTargetInterest");
-            StartCoroutine("SetFreeInterest");
+            StopCoroutine("SetInterestTarget");
+            StartCoroutine("SetInterestFree");
         }
 
-        if (newMode == InterestMode.Target && target != null)
+        if (newMode == MoveMode.Target)
         {
-            StopCoroutine("SetFreeInterest");
-            StartCoroutine("SetTargetInterest", target);
+            StopCoroutine("SetInterestFree");
+            StartCoroutine("SetInterestTarget");
         }
     }
 
-    private IEnumerator SetTargetInterest(Transform target)
+    /// <summary>
+    /// Sets the position to move to if Move Mode is in Target mode.
+    /// </summary>
+    /// <param name="target">The world position of the target</param>
+    public void MoveTo(Vector3 target)
+    {
+        m_interestTarget = target;
+    }
+
+    private IEnumerator SetInterestTarget()
     {
         while (isActiveAndEnabled)
         {
             for (int _i = 0; _i < m_numRays; _i++)
             {
-                Vector2 _direction = target.position - transform.position;
+                Vector2 _direction = m_interestTarget - transform.position;
 
                 float _d = Vector2.Dot(m_rayDirections[_i], _direction) / _direction.magnitude;
                 m_interests[_i] = Mathf.Max(0.1f, _d);
@@ -132,7 +143,7 @@ public class ContextSteering : MonoBehaviour
         }
     }
 
-    private IEnumerator SetFreeInterest()
+    private IEnumerator SetInterestFree()
     {
         while (isActiveAndEnabled)
         {
@@ -240,5 +251,8 @@ public class ContextSteering : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, m_dangerRange);
+
+        Gizmos.color = Color.black;
+        Gizmos.DrawWireSphere(m_interestTarget, 1f);
     }
 }

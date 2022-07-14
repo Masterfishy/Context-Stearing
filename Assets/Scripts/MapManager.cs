@@ -5,24 +5,23 @@ using UnityEngine.Tilemaps;
 
 public class MapManager : Singleton<MapManager>
 {
-    [Header("World Values")]
-    public Vector2 worldSize;
-
     [Header("Tilemaps")]
     public Tilemap groundMap;
     public Tilemap wallMap;
+    public Tilemap makerMap;
 
     [Header("Tile Time Bitches")]
     public TileBase groundTile;
     public TileBase wallTile;
 
     private Dictionary<Vector3Int, Node> m_worldMap;
+    private BoundsInt mapBounds;
 
     public int MapSize
     {
         get
         {
-            return (int)(worldSize.x * worldSize.y);
+            return mapBounds.size.x * mapBounds.size.y;
         }
     }
 
@@ -59,7 +58,7 @@ public class MapManager : Singleton<MapManager>
                 {
                     switch (_node.tile)
                     {
-                        case Tile.Ground:
+                        case TileType.Ground:
                             neighbors.Add(_node);
                             break;
                         default:
@@ -81,34 +80,28 @@ public class MapManager : Singleton<MapManager>
     {
         m_worldMap = new Dictionary<Vector3Int, Node>();
 
-        Vector3Int _placePosition = Vector3Int.zero;
-        for (int _x = -(int)worldSize.x / 2; _x < (int)worldSize.x / 2; _x++)
+        // Use the map maker tile map to make the world
+        mapBounds = makerMap.cellBounds;
+        Vector3Int _searchPosition = Vector3Int.zero;
+
+        for (int _x = mapBounds.xMin; _x < mapBounds.xMax; _x++)
         {
-            for (int _y = -(int)worldSize.y / 2; _y < (int)worldSize.y / 2; _y++)
+            for (int _y = mapBounds.yMin; _y < mapBounds.yMax; _y++)
             {
-                _placePosition.x = _x;
-                _placePosition.y = _y;
-                AddTile(_placePosition, Tile.Ground);
+                _searchPosition.x = _x;
+                _searchPosition.y = _y;
+
+                TileBase _tileBase = makerMap.GetTile(_searchPosition);
+                TileType _tileType = TileBaseToTileType(_tileBase);
+
+                AddTile(_searchPosition, _tileType);
             }
         }
 
-        Vector3Int[] _pointsToPlace = new Vector3Int[]{
-            new Vector3Int(0, 4, 0),
-            new Vector3Int(0, 3, 0),
-            new Vector3Int(0, 2, 0),
-            new Vector3Int(0, 1, 0),
-            new Vector3Int(1, 1, 0),
-            new Vector3Int(1, -3, 0),
-            new Vector3Int(4, 0, 0),
-        };
-
-        foreach (Vector3Int pos in _pointsToPlace)
-        {
-            AddTile(pos, Tile.Wall);
-        }
+        makerMap.enabled = false;
     }
 
-    private void AddTile(Vector3Int position, Tile tile)
+    private void AddTile(Vector3Int position, TileType tile)
     {
         if (m_worldMap.ContainsKey(position))
         {
@@ -120,10 +113,10 @@ public class MapManager : Singleton<MapManager>
 
         switch(tile)
         {
-            case Tile.Ground:
+            case TileType.Ground:
                 groundMap.SetTile(position, groundTile);
                 break;
-            case Tile.Wall:
+            case TileType.Wall:
                 wallMap.SetTile(position, wallTile);
                 break;
             default:
@@ -139,15 +132,15 @@ public class MapManager : Singleton<MapManager>
             return;
         }
 
-        Tile tile = m_worldMap[position].tile;
+        TileType tile = m_worldMap[position].tile;
         m_worldMap.Remove(position);
 
         switch (tile)
         {
-            case Tile.Ground:
+            case TileType.Ground:
                 groundMap.SetTile(position, null);
                 break;
-            case Tile.Wall:
+            case TileType.Wall:
                 wallMap.SetTile(position, null);
                 break;
             default:
@@ -156,13 +149,24 @@ public class MapManager : Singleton<MapManager>
         }
     }
 
-    private void OnDrawGizmos()
+    private TileType TileBaseToTileType(TileBase tileBase)
     {
-        Gizmos.DrawWireCube(transform.position, worldSize);
+        if (tileBase == groundTile)
+        {
+            return TileType.Ground;
+        }
+
+        if (tileBase == wallTile)
+        {
+            return TileType.Wall;
+        }
+
+        return TileType.Default;
     }
 }
-public enum Tile
+public enum TileType
 {
+    Default,
     Ground,
     Wall
 }
