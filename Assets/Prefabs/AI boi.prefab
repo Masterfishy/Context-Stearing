@@ -57,7 +57,7 @@ MonoBehaviour:
     m_Bits: 512
   m_speed: 3
   m_interestRange: 2
-  m_dangerRange: 1.5
+  m_dangerRange: 1
   m_numRays: 16
 --- !u!114 &8643961028173684986
 MonoBehaviour:
@@ -87,7 +87,7 @@ MonoBehaviour:
   target: {fileID: 0}
   pathTarget: {fileID: 5836213594546497668}
   strafeDistance: 2.46
-  pathTargetRange: 1
+  pathTargetRange: 0.66
 --- !u!50 &2686559069605491864
 Rigidbody2D:
   serializedVersion: 4

@@ -174,23 +174,15 @@ public class ContextSteering : MonoBehaviour
         {
             for (int _i = 0; _i < m_numRays; _i++)
             {
+                m_dangers[_i] = 0f;
+
                 RaycastHit2D _result = Physics2D.Raycast(transform.position, m_rayDirections[_i], m_dangerRange, m_dangerLayer);
                 if (_result)
                 {
-                    float _weight = 1f;
                     float _distanceToDanger = _result.distance;
+                    float _weight = 1 - (_distanceToDanger / m_dangerRange);
 
-                    SteeringObject _so = _result.collider.gameObject.GetComponent<SteeringObject>();
-                    if (_so != null)
-                    {
-                        _weight = 1 - (_distanceToDanger / m_dangerRange);
-                    }
-
-                    m_dangers[_i] = _weight;
-                }
-                else
-                {
-                    m_dangers[_i] = 0f;
+                    m_dangers[_i] = _weight * 2;
                 }
             }
 
@@ -253,6 +245,6 @@ public class ContextSteering : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, m_dangerRange);
 
         Gizmos.color = Color.black;
-        Gizmos.DrawWireSphere(m_interestTarget, 1f);
+        Gizmos.DrawSphere(m_interestTarget, 0.25f);
     }
 }

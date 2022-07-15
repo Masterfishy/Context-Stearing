@@ -36,7 +36,7 @@ public class AIBrain : MonoBehaviour
 
         if (path != null && path.Length > 0)
         {
-            findNewPath = Vector3.Distance(transform.position, path[path.Length - 1]) > 1f;
+            findNewPath = Vector3.Distance(target.position, path[path.Length - 1]) > 1f;
         }
     }
 
@@ -66,10 +66,10 @@ public class AIBrain : MonoBehaviour
         {
             if (Vector3.Distance(transform.position, pathTargetPosition) < pathTargetRange)
             {
-                targetIndex++;
-
                 pathTargetPosition = path[targetIndex];
                 steering.MoveTo(pathTargetPosition);
+
+                targetIndex++;
             }
 
             yield return new WaitForEndOfFrame();
@@ -98,8 +98,5 @@ public class AIBrain : MonoBehaviour
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(pathTargetPosition, pathTargetRange);
         }
-
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawWireSphere(target.position, strafeDistance);
     }
 }
