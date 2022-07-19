@@ -57,7 +57,7 @@ public class SourceEvictingQueue<S, T>
         if (m_sourceQueues.TryGetValue(source, out Queue<T> elems))
         {
             // Remove the oldest entry if source queue is at capacity
-            if (elems.Count > m_evicitionCapacity)
+            if (elems.Count >= m_evicitionCapacity)
             {
                 elems.Dequeue();
             }

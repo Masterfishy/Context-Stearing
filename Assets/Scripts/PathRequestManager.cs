@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PathRequestManager : Singleton<PathRequestManager>
 {
-    private Queue<PathRequest> pathRequestQueue = new Queue<PathRequest>();
+    private SourceEvictingQueue<int, PathRequest> pathRequestQueue = new SourceEvictingQueue<int, PathRequest>(1);
     private PathRequest currentPathRequest;
 
     private Pathfinding pathfinding;
@@ -24,14 +24,15 @@ public class PathRequestManager : Singleton<PathRequestManager>
     /// <summary>
     /// Requests a path from the PathRequestManager to be processed when resources are available.
     /// </summary>
+    /// <param name="requesterID">The ID of the requester</param>
     /// <param name="pathStart">The start of the path</param>
     /// <param name="pathEnd">The end of the path</param>
     /// <param name="callback">The callback function for when the request is processed</param>
-    public void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback)
+    public void RequestPath(int requesterID, Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback)
     {
         PathRequest newRequest = new PathRequest(pathStart, pathEnd, callback);
 
-        Instance.pathRequestQueue.Enqueue(newRequest);
+        Instance.pathRequestQueue.Enqueue(requesterID, newRequest);
         Instance.TryProcessNext();
     }   
 

@@ -32,7 +32,7 @@ public class AIBrain : MonoBehaviour
         if (findNewPath)
         {
             steering.SetMoveMode(MoveMode.Target);
-            PathRequestManager.Instance.RequestPath(transform.position, target.position, OnPathFound);
+            PathRequestManager.Instance.RequestPath(gameObject.GetInstanceID(), transform.position, target.position, OnPathFound);
             findNewPath = false;
         }
 
