@@ -77,17 +77,6 @@ public class ContextSteering : MonoBehaviour
         //{
         //    Debug.DrawLine(transform.position, entry + (Vector2)transform.position, Color.green);
         //}
-
-        for (int _i = 0; _i < m_numRays; _i++)
-        {
-            Vector2 _interest = m_rayDirections[_i] * m_interests[_i];
-            Debug.DrawRay(transform.position, _interest, Color.green);
-
-            Vector2 _danger = m_rayDirections[_i] * m_dangers[_i];
-            Debug.DrawRay(transform.position, _danger, Color.red);
-        }
-
-        Debug.DrawRay(transform.position, m_chosenDirection, Color.blue);
     }
 
     private void FixedUpdate()
@@ -194,13 +183,13 @@ public class ContextSteering : MonoBehaviour
     {
         while (isActiveAndEnabled)
         {
-            for (int _i = 0; _i < m_numRays; _i++)
-            {
-                if (m_dangers[_i] > 0f)
-                {
-                    m_interests[_i] = 0f;
-                }
-            }
+            //for (int _i = 0; _i < m_numRays; _i++)
+            //{
+            //    if (m_dangers[_i] > 0f)
+            //    {
+            //        m_interests[_i] = 0f;
+            //    }
+            //}
 
             m_chosenDirection = Vector2.zero;
             for (int _i = 0; _i < m_numRays; _i++)
@@ -230,7 +219,7 @@ public class ContextSteering : MonoBehaviour
                 Debug.DrawRay(transform.position, _danger, Color.red);
             }
 
-            Debug.DrawRay(transform.position, m_chosenDirection, Color.blue);
+            Debug.DrawRay(transform.position, m_chosenDirection, Color.cyan);
 
             yield return new WaitForFixedUpdate();
         }
@@ -238,13 +227,13 @@ public class ContextSteering : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, m_interestRange);
+        //Gizmos.color = Color.green;
+        //Gizmos.DrawWireSphere(transform.position, m_interestRange);
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, m_dangerRange);
 
-        Gizmos.color = Color.black;
+        Gizmos.color = Color.white;
         Gizmos.DrawSphere(m_interestTarget, 0.25f);
     }
 }

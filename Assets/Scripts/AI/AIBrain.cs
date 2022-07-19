@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class AIBrain : MonoBehaviour
 {
+    public Color pathGizmoColor;
+
     public Transform target;
     public Transform pathTarget;
 
@@ -82,7 +84,7 @@ public class AIBrain : MonoBehaviour
         {
             for (int i = targetIndex; i < path.Length; i++)
             {
-                Gizmos.color = Color.blue;
+                Gizmos.color = pathGizmoColor;
                 Gizmos.DrawSphere(path[i], 0.1f);
 
                 if (i == targetIndex)
@@ -95,7 +97,7 @@ public class AIBrain : MonoBehaviour
                 }
             }
 
-            Gizmos.color = Color.magenta;
+            Gizmos.color = Color.white;
             Gizmos.DrawWireSphere(pathTargetPosition, pathTargetRange);
         }
     }
